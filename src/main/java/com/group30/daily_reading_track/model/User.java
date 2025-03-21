@@ -10,59 +10,99 @@ import jakarta.persistence.Id;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int Id;
+    private int id;
 
     @Column(unique = true, nullable = false)
-    private String Email;
+    private String email;
 
     @Column(unique = true, nullable = false)
-    private String Username;
+    private String username;
 
-    @Column(unique = true, nullable = false)
-    private String Password;
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String role; // User or Admin
+
+    // 邮箱是否验证，注册后初始为 false
+    @Column(name = "email_verified")
+    private boolean emailVerified;
 
     //构造器
     public User(){
     }
 
-    public User(int Id, String Email, String Username, String Password){
-        this.Id = Id;
-        this.Email = Email;
-        this.Username = Username;
-        this.Password = Password;
+
+    public User(int id, String email, String username, String password, String role) {
+        this.id = id;
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.role = role;
     }
+
 
     public int getId() {
-        return Id;
+        return id;
     }
+
 
     public void setId(int id) {
-        Id = id;
+        this.id = id;
     }
+
 
     public String getEmail() {
-        return Email;
+        return email;
     }
+
 
     public void setEmail(String email) {
-        Email = email;
+        this.email = email;
     }
+
 
     public String getUsername() {
-        return Username;
+        return username;
     }
+
 
     public void setUsername(String username) {
-        Username = username;
+        this.username = username;
     }
+
 
     public String getPassword() {
-        return Password;
+        return password;
     }
+
 
     public void setPassword(String password) {
-        Password = password;
+        this.password = password;
     }
 
+    public String getRole(){
+        return role;
+    }
+
+    public void setRole(String role){
+        this.role = role;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+    
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+
+    @Override
+    public String toString() {
+        return "User [id=" + id + ", email=" + email + ", username=" + username + ", password=" + password + "]";
+    }
+
+    
     
 }
