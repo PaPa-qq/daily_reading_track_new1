@@ -1,0 +1,18 @@
+spring:
+  #邮件服务配置
+  mail:
+    port: 465
+    host: smtp.qq.com #邮件服务器地址
+    protocol: smtp #协议
+    username:  2511467092@qq.com #发送邮件的邮箱也就是你开通服务的邮箱
+    password:  duljtxssemrweccf #开通服务后得到的授权码
+    default-encoding: utf-8 #邮件内容的编码
+    properties:
+      mail:
+
+        smtp:
+            auth: true
+            ssl: 
+                enable: true
+                required: false
+        debug: true
