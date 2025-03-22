@@ -69,13 +69,31 @@ public class UserService {
         }
     }
 
-    // 找回密码：发送重置密码邮件
+    // 判断邮箱是否存在
+    public boolean emailExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    // 重置密码（找回密码流程）
+    public boolean resetPassword(String email, String verificationCode, String newPassword) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            if (emailService.verifyVerificationCode(email, verificationCode)) {
+                User user = optionalUser.get();
+                user.setPassword(newPassword);
+                userRepository.save(user);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 找回密码：原有逻辑，此处可保留或移除
     public boolean forgotPassword(String email) {
         try {
             Optional<User> optionalUser = userRepository.findByEmail(email);
             if (optionalUser.isPresent()) {
-                User user = optionalUser.get();
-                
+                // 此处可以整合为发送验证码逻辑
                 return true;
             }
             return false;

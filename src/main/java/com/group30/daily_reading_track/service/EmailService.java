@@ -41,6 +41,27 @@ public class EmailService {
         }
     }
 
+    // 新增：找回密码验证码发送（邮件主题和内容不同）
+    public String sendForgotPasswordCodeEmail(String email) {
+        String code = generateVerificationCode();
+        verificationCodes.put(email, code);
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(email);
+            helper.setFrom("2511467092@qq.com");
+            helper.setSubject("找回密码验证码");
+            helper.setText("亲爱的用户，您的找回密码验证码是：" + code);
+            mailSender.send(message);
+            return code;
+        } catch (MessagingException | MailException ex) {
+            System.out.println(ex.getMessage());
+            verificationCodes.remove(email);
+            return null;
+        }
+    }
+
+
     public boolean verifyVerificationCode(String email, String inputCode) {
         String storedCode = verificationCodes.get(email);
         if (storedCode != null && storedCode.equals(inputCode)) {
@@ -55,4 +76,6 @@ public class EmailService {
         int code = 100000 + random.nextInt(900000);
         return String.valueOf(code);
     }
+
+    
 }

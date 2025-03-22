@@ -2,18 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Login Page</title>
+    <title>登录页面</title>
 </head>
 <body>
-    <h1>Login</h1>
+    <h1>登录</h1>
     <form action="/user/login" method="post">
-        <label for="username">Username:</label>
+        <label for="username">用户名：</label>
         <input type="text" id="username" name="username" required><br>
-        <label for="password">Password:</label>
+        <label for="password">密码：</label>
         <input type="password" id="password" name="password" required><br>
         <span th:if="${error}" th:text="${error}" style="color: red;"></span><br>
-        <input type="submit" value="Login">
+        <input type="submit" value="登录">
     </form>
-    <a href="/user/registerPage">Register</a>
+    <a href="/user/registerPage">注册</a> |
+    <a href="/user/forgotPasswordPage">忘记密码？</a>
 </body>
 </html>

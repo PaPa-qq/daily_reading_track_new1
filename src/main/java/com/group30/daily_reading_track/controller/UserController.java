@@ -36,6 +36,57 @@ public class UserController {
         return "register";
     }
 
+    // 新增：显示忘记密码页面（输入邮箱获取验证码）
+    @GetMapping("/forgotPasswordPage")
+    public String showForgotPasswordPage() {
+        return "forgotPassword";
+    }
+
+    // POST接口：发送找回密码验证码
+    @PostMapping("/sendForgotPasswordCode")
+    @ResponseBody
+    public ResponseEntity<?> sendForgotPasswordCode(@RequestParam String email) {
+        if (!userService.emailExists(email)) {
+            return ResponseEntity.badRequest().body("邮箱不存在");
+        }
+        String code = emailService.sendForgotPasswordCodeEmail(email);
+        if (code == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("验证码发送失败");
+        }
+        return ResponseEntity.ok("验证码已发送");
+    }
+
+    // 处理重置密码请求
+    @PostMapping("/resetPassword")
+    public String resetPassword(@RequestParam("email") String email,
+                                @RequestParam("verificationCode") String verificationCode,
+                                @RequestParam("newPassword") String newPassword,
+                                @RequestParam("confirmPassword") String confirmPassword,
+                                Model model) {
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("error", "两次密码输入不一致");
+            model.addAttribute("email", email);
+            return "resetPassword";
+        }
+        boolean result = userService.resetPassword(email, verificationCode, newPassword);
+        if (result) {
+            model.addAttribute("message", "密码重置成功，请登录");
+            return "login";
+        } else {
+            model.addAttribute("error", "验证码错误或邮箱不存在");
+            model.addAttribute("email", email);
+            return "resetPassword";
+        }
+    }
+
+    // 显示重置密码页面（输入验证码和新密码）
+    @GetMapping("/resetPasswordPage")
+    public String showResetPasswordPage(@RequestParam("email") String email, Model model) {
+        model.addAttribute("email", email);
+        return "resetPassword";
+    }
+
     // 登录接口
     @PostMapping("/login")
     public String login(@ModelAttribute LoginRequest loginRequest, Model model) {
