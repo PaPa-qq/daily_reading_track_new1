@@ -24,7 +24,7 @@ public class EmailService {
                 mimeMessage.setRecipient(Message.RecipientType.TO, 
                 new InternetAddress("2511467092@qq.com"));
                 mimeMessage.setFrom(new InternetAddress("2511467092@qq.com"));
-                mimeMessage.setText("Dear " + "Your code number is " + "123456");
+                mimeMessage.setText("Dear User, " + "Your code number is " + "123456");
             }
         };
         try{
