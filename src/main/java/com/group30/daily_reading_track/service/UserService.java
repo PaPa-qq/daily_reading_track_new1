@@ -15,6 +15,9 @@ public class UserService {
     @Autowired
     private UserRepo userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     // 用户登录：验证用户名和密码
     public User login(String username, String password) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
@@ -43,6 +46,11 @@ public class UserService {
                 System.out.println("用户名或邮箱已存在");
                 return false;
             }
+
+            if (!emailService.verifyVerificationCode(request.getEmail(), request.getVerificationCode())){
+                System.out.println("验证码错误");
+                return false;
+            }
             
             User user = new User();
             user.setUsername(request.getUsername());
@@ -53,9 +61,6 @@ public class UserService {
             
             // 保存用户到数据库
             userRepository.save(user);
-            
-            // 发送验证邮件（这里仅模拟发送）
-            EmailUtil.sendVerificationEmail(user);
             
             return true;
         } catch (Exception e) {
@@ -70,7 +75,7 @@ public class UserService {
             Optional<User> optionalUser = userRepository.findByEmail(email);
             if (optionalUser.isPresent()) {
                 User user = optionalUser.get();
-                EmailUtil.sendResetPasswordEmail(user);
+                
                 return true;
             }
             return false;
@@ -78,5 +83,9 @@ public class UserService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public String sendVerificationCode(String email){
+        return emailService.sendVerificationCodeEmail(email);
     }
 }

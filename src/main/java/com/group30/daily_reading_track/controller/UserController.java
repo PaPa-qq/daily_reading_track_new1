@@ -11,6 +11,7 @@ import com.group30.daily_reading_track.dto.ForgotPasswordRequest;
 import com.group30.daily_reading_track.dto.LoginRequest;
 import com.group30.daily_reading_track.dto.RegisterRequest;
 import com.group30.daily_reading_track.model.User;
+import com.group30.daily_reading_track.service.EmailService;
 import com.group30.daily_reading_track.service.UserService;
 
 @Controller
@@ -19,6 +20,9 @@ public class UserController {
     
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     // 显示登录页面
     @GetMapping("/loginPage")
@@ -108,5 +112,17 @@ public class UserController {
         }
         return ResponseEntity.ok("Success! Please check the Email.");
     }
+
+    // 发送验证码接口
+    @PostMapping("/sendVerificationCode")
+    @ResponseBody
+    public ResponseEntity<?> sendVerificationCode(@RequestParam String email) {
+        String code = emailService.sendVerificationCodeEmail(email);
+        if (code == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send verification code");
+        }
+        return ResponseEntity.ok("Verification code sent successfully");
+    }
+
 }
 

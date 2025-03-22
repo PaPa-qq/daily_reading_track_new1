@@ -4,13 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
-import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 @Service
 public class EmailService {
@@ -18,20 +19,40 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendEmail(){
-        MimeMessagePreparator preparator = new MimeMessagePreparator(){
-            public void prepare(MimeMessage mimeMessage) throws Exception {
-                mimeMessage.setRecipient(Message.RecipientType.TO, 
-                new InternetAddress("2511467092@qq.com"));
-                mimeMessage.setFrom(new InternetAddress("2511467092@qq.com"));
-                mimeMessage.setText("Dear User, " + "Your code number is " + "123456");
-            }
-        };
-        try{
-            mailSender.send(preparator);
-        }catch(MailException ex){
+    private Map<String, String> verificationCodes = new HashMap<>();
+
+    public String sendVerificationCodeEmail(String email) {
+        String code = generateVerificationCode();
+        verificationCodes.put(email, code);
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(email);
+            helper.setFrom("2511467092@qq.com"); // 替换为实际发件人邮箱
+            helper.setSubject("注册验证码");
+            helper.setText("Dear User, Your code number is " + code);
+            mailSender.send(message);
+            return code;
+        } catch (MessagingException | MailException ex) {
             System.out.println(ex.getMessage());
+            verificationCodes.remove(email);
+            return null;
         }
     }
 
+    public boolean verifyVerificationCode(String email, String inputCode) {
+        String storedCode = verificationCodes.get(email);
+        if (storedCode != null && storedCode.equals(inputCode)) {
+            verificationCodes.remove(email);
+            return true;
+        }
+        return false;
+    }
+
+    private String generateVerificationCode() {
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000);
+        return String.valueOf(code);
+    }
 }

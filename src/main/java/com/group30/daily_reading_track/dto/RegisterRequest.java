@@ -5,6 +5,7 @@ public class RegisterRequest {
     private String password;
     private String confirmPassword;
     private String email;
+    private String verificationCode;
     
     // getter 和 setter
     public String getUsername() {
@@ -37,5 +38,13 @@ public class RegisterRequest {
  
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getVerificationCode(){
+        return verificationCode;
+    }
+    
+    public void setVerificationCode(String verificationCode){
+        this.verificationCode = verificationCode;
     }
 }
