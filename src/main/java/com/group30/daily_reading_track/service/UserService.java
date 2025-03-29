@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import com.group30.daily_reading_track.model.User;
 import com.group30.daily_reading_track.repository.UserRepo;
-import com.group30.daily_reading_track.util.EmailUtil;
+
 
 @Service
 public class UserService {
@@ -105,5 +105,9 @@ public class UserService {
 
     public String sendVerificationCode(String email){
         return emailService.sendVerificationCodeEmail(email);
+    }
+
+    public User findByUsername(String username){
+        return userRepository.findByUsername(username).orElse(null);
     }
 }

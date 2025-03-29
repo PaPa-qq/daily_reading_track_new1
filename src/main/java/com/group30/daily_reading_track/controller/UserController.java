@@ -14,6 +14,8 @@ import com.group30.daily_reading_track.model.User;
 import com.group30.daily_reading_track.service.EmailService;
 import com.group30.daily_reading_track.service.UserService;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 @RequestMapping("/user")
 public class UserController {
@@ -89,17 +91,18 @@ public class UserController {
 
     // 登录接口
     @PostMapping("/login")
-    public String login(@ModelAttribute LoginRequest loginRequest, Model model) {
+    public String login(@ModelAttribute LoginRequest loginRequest, Model model, HttpSession session) {
         User user = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
         if (user == null) {
             model.addAttribute("error", "Error Username OR Password");
             return "login";
         }
-        // 判断是否管理员
-        if ("ADMIN".equalsIgnoreCase(user.getRole())) {
-            return "adminPage";
-        }
-        return "userPage";
+        session.setAttribute("user", user);
+        // 根据角色重定向到不同界面
+    if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+        return "redirect:/admin/dashboard";  // 管理员界面
+    }
+    return "redirect:/user/dashboard";  // 普通用户仪表盘
     }
 
     // 登录接口，用于 Postman 测试
@@ -174,6 +177,29 @@ public class UserController {
         }
         return ResponseEntity.ok("Verification code sent successfully");
     }
+
+    // 新增用于显示用户管理
+    @GetMapping("/dashboard")
+    public String showUserDashboard(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/user/login";
+        }
+        model.addAttribute("user", user);
+        return "userDashboard";  // 对应 resources/templates/userDashboard.html
+    }
+
+    // 新增退出登录
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        // 使 session 失效，清除所有用户数据
+        session.invalidate();
+        // 重定向到登录页面
+        return "redirect:/user/loginPage";
+    }
+
+        
+
 
 }
 

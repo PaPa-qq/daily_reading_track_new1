@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>阅读日志管理</title>
+</head>
+<body>
+    <h1>阅读日志管理</h1>
+    <p>当前用户：<span th:text="${username}">username</span></p>
+    
+    <!-- 显示所有阅读日志 -->
+    <div>
+        <h2>我的阅读日志</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>标题</th>
+                    <th>作者</th>
+                    <th>阅读日期</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="log : ${readingActivities}">
+                    <td th:text="${log.id}"></td>
+                    <td th:text="${log.title}"></td>
+                    <td th:text="${log.author}"></td>
+                    <td th:text="${log.readingDate}"></td>
+                    <td>
+                        <!-- 修正更新链接 -->
+                    <a th:href="@{/readingActivities/update/{id}(id=${log.id}, username=${username})}">编辑</a>
+                        <!-- 删除日志：使用表单提交删除请求 -->
+                        <form th:action="@{'/readingActivities/delete/' + ${log.id}}" method="post" style="display:inline;">
+                            <input type="hidden" name="username" th:value="${username}" />
+                            <input type="submit" value="删除" onclick="return confirm('确定删除该日志？');" />
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 创建新日志 -->
+    <div>
+        <h2>创建新日志</h2>
+        <form action="/readingActivities/create" method="post">
+            <input type="hidden" name="username" th:value="${username}" />
+            <label for="title">标题：</label>
+            <input type="text" id="title" name="title" required /><br/>
+            <label for="author">作者：</label>
+            <input type="text" id="author" name="author" required /><br/>
+            <label for="readingDate">阅读日期：</label>
+            <input type="date" id="readingDate" name="readingDate" required /><br/>
+            <label for="timeSpent">时长 (HH:mm:ss)：</label>
+            <input type="text" id="timeSpent" name="timeSpent" placeholder="00:30:00" required /><br/>
+            <label for="content">内容：</label>
+            <textarea id="content" name="content"></textarea><br/>
+            <input type="submit" value="创建日志" />
+        </form>
+    </div>
+    
+    <!-- 搜索日志 -->
+    <div>
+        <h2>搜索日志</h2>
+        <form action="/readingActivities/search" method="get">
+            <input type="hidden" name="username" th:value="${username}" />
+            <label for="titleSearch">标题关键字：</label>
+            <input type="text" id="titleSearch" name="title" />
+            <input type="submit" value="搜索" />
+            <!-- 重置搜索按钮 -->
+            <a th:href="@{'/readingActivities/manage?username=' + ${username}}" style="margin-left:10px;">重置搜索</a>
+        </form>
+    </div>
+    
+    <!-- 底部返回按钮 -->
+    <div style="margin-top:20px;">
+        <a th:href="@{/user/dashboard}">返回用户管理</a>
+    </div>
+</body>
+</html>
