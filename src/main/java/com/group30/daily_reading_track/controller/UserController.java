@@ -1,11 +1,13 @@
 package com.group30.daily_reading_track.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.web.exchanges.HttpExchange.Principal;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.group30.daily_reading_track.dto.ForgotPasswordRequest;
 import com.group30.daily_reading_track.dto.LoginRequest;
@@ -178,7 +180,7 @@ public class UserController {
         return ResponseEntity.ok("Verification code sent successfully");
     }
 
-    // 新增用于显示用户管理
+    // 新增I：用于显示用户管理
     @GetMapping("/dashboard")
     public String showUserDashboard(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
@@ -189,7 +191,7 @@ public class UserController {
         return "userDashboard";  // 对应 resources/templates/userDashboard.html
     }
 
-    // 新增退出登录
+    // 新增I：退出登录
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         // 使 session 失效，清除所有用户数据
@@ -198,8 +200,83 @@ public class UserController {
         return "redirect:/user/loginPage";
     }
 
-        
+    // 新增I：更新个人资料
+    @PostMapping("/updateProfile")
+    public String updateProfile(@RequestParam String oldUsername,
+    @RequestParam String newUsername,
+    HttpSession session,
+    Model model){
+        User currentUser = userService.findByUsername(oldUsername);
+        if (currentUser == null){
+            model.addAttribute("error", "User not found");
+            return "error";
+        }
 
+        // 更新逻辑
+        currentUser.setUsername(newUsername);
+        userService.updateUser(currentUser);
+        session.setAttribute("user", currentUser);
+        return "redirect:/user/dashboard";
+    }
+
+    // 新增I：显示个人资料更新页面
+    @GetMapping("/profilePage")
+    public String showProfilePage(@RequestParam String username, Model model) {
+        User user = userService.findByUsername(username);
+        if (user == null){
+            model.addAttribute("error", "User not found");
+            return "error";
+        }
+        model.addAttribute("user", user);
+        return "updateProfile";
+    }
+
+    // 新增I：修改密码页面
+    @GetMapping("/changePasswordPage")
+    public String showChangePasswordPage(Model model, HttpSession session){
+        User currentUser = (User)session.getAttribute("user");
+        model.addAttribute("user", currentUser);
+        return "changePassword";
+    }
+
+    // 新增I：处理密码修改
+    @PostMapping("/changePassword")
+    public String changePassword(@RequestParam String oldPassword,
+    @RequestParam String newPassword,
+    @RequestParam String confirmPassword,
+    HttpSession session,
+    Model model){
+    // 从 session 获取当前登录的用户信息
+    User currentUser = (User) session.getAttribute("user");
+    if (currentUser == null) {
+        // 如果用户未登录，重定向到登录页面
+        return "redirect:/user/loginPage";
+    }
+
+    // 验证旧密码是否正确
+    if (!currentUser.getPassword().equals(oldPassword)) {
+        model.addAttribute("error", "旧密码不正确");
+            model.addAttribute("username", currentUser.getUsername());
+            return "changePassword";
+    }
+
+    // 验证新密码和确认密码是否一致
+    if (!newPassword.equals(confirmPassword)) {
+        model.addAttribute("error", "新密码和确认密码不一致");
+        model.addAttribute("username", currentUser.getUsername());
+        return "changePassword";
+    }
+
+    currentUser.setPassword(newPassword);
+    userService.updateUser(currentUser);
+    // 更新 session 中的用户信息
+    currentUser.setPassword(newPassword); // 注意：实际应用中应对密码进行加密处理
+    session.setAttribute("user", currentUser);
+    
+    model.addAttribute("message", "密码修改成功");
+    model.addAttribute("username", currentUser.getUsername());
+    return "changePassword";
+    }
 
 }
 
