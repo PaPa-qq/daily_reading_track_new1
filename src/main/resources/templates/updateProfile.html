@@ -1,18 +1,111 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>更新个人资料</title>
 </head>
+
 <body>
     <h1>更新个人资料</h1>
-    <form action="/user/updateProfile" method="post">
-        <!-- 隐藏字段传递旧用户名 -->
+
+    <!-- 修改用户名的表单 -->
+    <form action="/user/updateUsername" method="post">
         <input type="hidden" name="oldUsername" th:value="${user.username}" />
-        <label for="newUsername">新用户名:</label>
-        <input type="text" id="newUsername" name="newUsername" placeholder="请输入新用户名" required /><br/>
-        <input type="submit" value="更新" />
+        <label for="newUsername">新用户名：</label>
+        <input type="text" id="newUsername" name="newUsername" placeholder="请输入新用户名" required /><br>
+        <input type="submit" value="更新用户名" />
     </form>
+
+    <br />
+
+    <!-- 当前头像显示 -->
+    <p>当前头像：</p>
+    <img th:src="${#strings.isEmpty(user.avatarPath)} ? '/images/default-avatar.png' : ${user.avatarPath}" alt="当前头像"
+        style="width: 120px; height: 120px; border-radius: 8px; object-fit: cover;" />
+
+    <br><br>
+
+    <!-- 上传头像的表单，带预览和校验 -->
+    <form action="/user/uploadAvatar" method="post" enctype="multipart/form-data" onsubmit="return validateImage();">
+        <input type="hidden" name="username" th:value="${user.username}" />
+
+        <label for="avatar">上传头像：</label>
+        <input type="file" id="avatar" name="avatar" accept="image/*" onchange="previewImage(event)" required /><br>
+
+        <!--  用户说明提示 -->
+        <small style="color: gray;">仅支持 JPG / PNG / GIF 格式，最大 2MB</small><br>
+
+        <!-- 图片预览区 -->
+        <img id="avatarPreview" src="#" alt="预览头像"
+            style="display:none; margin-top: 10px; width: 120px; height: 120px; border-radius: 8px; object-fit: cover;" />
+        <br>
+
+        <input type="submit" value="更新头像" />
+    </form>
+
+    <!-- 弹窗提示 & 图片预览 & 限制 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.onload = function () {
+            const url = new URL(window.location.href);
+            const success = url.searchParams.get("success");
+
+            if (success === 'avatar') {
+                alert("头像上传成功！");
+            } else if (success === 'username') {
+                alert("用户名更新成功！");
+            }
+
+            // 清除 URL 参数（防止刷新重复提示）
+            if (success !== null) {
+                url.searchParams.delete("success");
+                window.history.replaceState({}, document.title, url.pathname + url.search);
+            }
+        };
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById("avatarPreview");
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function validateImage() {
+            const fileInput = document.getElementById("avatar");
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("请选择要上传的头像！");
+                return false;
+            }
+
+            // 限制最大 2MB
+            const maxSize = 2 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert("头像不能超过 2MB！");
+                return false;
+            }
+
+            // 限制图片格式
+            const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+            if (!allowedTypes.includes(file.type)) {
+                alert("只支持 JPG、PNG、GIF 格式的图片！");
+                return false;
+            }
+
+            return true;
+        }
+        /*]]>*/
+    </script>
+
+    <br />
     <a th:href="@{/user/dashboard}">返回用户管理</a>
 </body>
+
 </html>

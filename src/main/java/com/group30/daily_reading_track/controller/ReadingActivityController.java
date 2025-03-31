@@ -18,11 +18,10 @@ import com.group30.daily_reading_track.model.User;
 import com.group30.daily_reading_track.service.ReadingActivityService;
 import com.group30.daily_reading_track.service.UserService;
 
-
 @Controller
 @RequestMapping("/readingActivities")
 public class ReadingActivityController {
-    
+
     @Autowired
     private ReadingActivityService readingActivityService;
 
@@ -34,16 +33,16 @@ public class ReadingActivityController {
      * URL 示例：/readingActivities/manage?username=user123
      */
     @GetMapping("/manage")
-    public  String createReadingActivity(@RequestParam String username, Model model){
+    public String createReadingActivity(@RequestParam String username, Model model) {
         User user = userService.findByUsername(username);
-        if (user == null){
+        if (user == null) {
             model.addAttribute("error", "User not found!");
             return "error";
         }
-       List<ReadingActivity> readingActivities = readingActivityService.getActivityByUser(user);
-       model.addAttribute("readingActivities", readingActivities);
-       model.addAttribute("username", username);
-       return "readingActivities";
+        List<ReadingActivity> readingActivities = readingActivityService.getActivityByUser(user);
+        model.addAttribute("readingActivities", readingActivities);
+        model.addAttribute("username", username);
+        return "readingActivities";
     }
 
     /**
@@ -52,8 +51,8 @@ public class ReadingActivityController {
      */
     @PostMapping("/create")
     public String createReadingActivity(@RequestParam String username,
-                                        @ModelAttribute ReadingActivity readingActivity,
-                                        Model model){
+            @ModelAttribute ReadingActivity readingActivity,
+            Model model) {
         User user = userService.findByUsername(username);
         if (user == null) {
             model.addAttribute("error", "User not found");
@@ -61,7 +60,7 @@ public class ReadingActivityController {
         }
         readingActivity.setUser(user);
         readingActivityService.createActivity(readingActivity);
-        return "redirect:/readingActivities/manage?username=" + username;               
+        return "redirect:/readingActivities/manage?username=" + username;
     }
 
     @GetMapping("/update/{id}")
@@ -82,10 +81,10 @@ public class ReadingActivityController {
      */
     @PostMapping("/update/{id}")
     public String updateReadingActivity(@PathVariable("id") Long id,
-    @RequestParam String username,
-    @ModelAttribute("activity") ReadingActivity updatedActivity,
-    BindingResult result){
-        if (result.hasErrors()){
+            @RequestParam String username,
+            @ModelAttribute("activity") ReadingActivity updatedActivity,
+            BindingResult result) {
+        if (result.hasErrors()) {
             return "updatedReadingActivity";
         }
         ReadingActivity existing = readingActivityService.getReadingActivityById(id);
@@ -106,8 +105,8 @@ public class ReadingActivityController {
      */
     @PostMapping("/delete/{id}")
     public String deleteReadingLog(@PathVariable("id") Long id,
-                                   @RequestParam String username, 
-                                   Model model) {
+            @RequestParam String username,
+            Model model) {
         readingActivityService.deleteActivity(id);
         return "redirect:/readingActivities/manage?username=" + username;
     }
@@ -117,9 +116,9 @@ public class ReadingActivityController {
      * URL 示例：/readingActivities/search?username=user123&title=Spring
      */
     @GetMapping("/search")
-    public String searchReadingActivity(@RequestParam String username, 
-                                        @RequestParam String title, 
-                                        Model model) {
+    public String searchReadingActivity(@RequestParam String username,
+            @RequestParam String title,
+            Model model) {
         User user = userService.findByUsername(username);
         if (user == null) {
             model.addAttribute("error", "User not found");
@@ -131,50 +130,53 @@ public class ReadingActivityController {
         return "readingActivities";
     }
 
-                                        
+    // // 查询指定用户阅读日志
+    // @GetMapping
+    // public ResponseEntity<?> getReadingActivity(@RequestParam String username){
+    // User user = userService.findByUsername(username);
+    // if (user == null){
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    // }
+    // List<ReadingActivity> readingActivities =
+    // readingActivityService.getActivityByUser(user);
+    // return ResponseEntity.ok(readingActivities); // 对应
+    // resources/templates/readingActivities.html
+    // }
 
-//     // 查询指定用户阅读日志
-//     @GetMapping
-//     public ResponseEntity<?> getReadingActivity(@RequestParam String username){
-//         User user = userService.findByUsername(username);
-//         if (user == null){
-//             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-//         }
-//         List<ReadingActivity> readingActivities = readingActivityService.getActivityByUser(user);
-//         return ResponseEntity.ok(readingActivities); // 对应 resources/templates/readingActivities.html
-//     }
+    // // 通过id更新日志
+    // @PostMapping("/{Id}")
+    // public ResponseEntity<?> updateReadingActivity(@PathVariable Long Id,
+    // @RequestBody ReadingActivity readingActivity){
+    // ReadingActivity existing = readingActivityService.getReadingActivityById(Id);
+    // if (existing == null){
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reading Activity not
+    // found!");
+    // }
+    // existing.setAuthor(readingActivity.getAuthor());
+    // existing.setContent(readingActivity.getContent());
+    // existing.setTitle(readingActivity.getTitle());
+    // existing.setReadingDate(readingActivity.getReadingDate());
+    // ReadingActivity update = readingActivityService.updateActivity(existing);
+    // return ResponseEntity.ok(update);
+    // }
 
+    // // 删除阅读日志
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<?> deleteReadingLog(@PathVariable("id") Long id) {
+    // readingActivityService.deleteActivity(id);
+    // return ResponseEntity.ok("Deleted");
+    // }
 
-//     // 通过id更新日志
-//     @PostMapping("/{Id}")
-//     public ResponseEntity<?> updateReadingActivity(@PathVariable Long Id, @RequestBody ReadingActivity readingActivity){
-//         ReadingActivity existing = readingActivityService.getReadingActivityById(Id);
-//         if (existing == null){
-//             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reading Activity not found!");
-//         }
-//         existing.setAuthor(readingActivity.getAuthor());
-//         existing.setContent(readingActivity.getContent());
-//         existing.setTitle(readingActivity.getTitle());
-//         existing.setReadingDate(readingActivity.getReadingDate());
-//         ReadingActivity update = readingActivityService.updateActivity(existing);
-//         return ResponseEntity.ok(update);
-//     }
-
-//     // 删除阅读日志
-//     @DeleteMapping("/{id}")
-//     public ResponseEntity<?> deleteReadingLog(@PathVariable("id") Long id) {
-//         readingActivityService.deleteActivity(id);
-//         return ResponseEntity.ok("Deleted");
-// }
-
-//     // 搜索阅读日志
-//     @GetMapping("/search")
-//     public ResponseEntity<?> searchReadingActivity(@RequestParam String username, @RequestParam String title){
-//         User user = userService.findByUsername(username);
-//         if (user == null){
-//             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user!");
-//         }
-//         List<ReadingActivity> readingActivities = readingActivityService.searchActivity(user, title);
-//         return ResponseEntity.ok(readingActivities);
-//     }
+    // // 搜索阅读日志
+    // @GetMapping("/search")
+    // public ResponseEntity<?> searchReadingActivity(@RequestParam String username,
+    // @RequestParam String title){
+    // User user = userService.findByUsername(username);
+    // if (user == null){
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user!");
+    // }
+    // List<ReadingActivity> readingActivities =
+    // readingActivityService.searchActivity(user, title);
+    // return ResponseEntity.ok(readingActivities);
+    // }
 }

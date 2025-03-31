@@ -1,13 +1,11 @@
 package com.group30.daily_reading_track.service;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import com.group30.daily_reading_track.dto.RegisterRequest;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 import com.group30.daily_reading_track.model.User;
 import com.group30.daily_reading_track.repository.UserRepo;
-
 
 @Service
 public class UserService {
@@ -47,21 +45,24 @@ public class UserService {
                 return false;
             }
 
-            if (!emailService.verifyVerificationCode(request.getEmail(), request.getVerificationCode())){
+            if (!emailService.verifyVerificationCode(request.getEmail(), request.getVerificationCode())) {
                 System.out.println("验证码错误");
                 return false;
             }
-            
+
             User user = new User();
             user.setUsername(request.getUsername());
             user.setPassword(request.getPassword());
             user.setEmail(request.getEmail());
-            user.setRole("USER");  // 默认注册为普通用户
+            user.setRole("USER"); // 默认注册为普通用户
             user.setEmailVerified(false);
-            
+
+            // 设置默认头像
+            // user.setAvatarPath("/images/default-avatar.png");
+
             // 保存用户到数据库
             userRepository.save(user);
-            
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,15 +104,15 @@ public class UserService {
         }
     }
 
-    public String sendVerificationCode(String email){
+    public String sendVerificationCode(String email) {
         return emailService.sendVerificationCodeEmail(email);
     }
 
-    public User findByUsername(String username){
+    public User findByUsername(String username) {
         return userRepository.findByUsername(username).orElse(null);
     }
 
-    public void updateUser(User user){
+    public void updateUser(User user) {
         userRepository.save(user);
     }
 }
